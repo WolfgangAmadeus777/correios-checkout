@@ -627,11 +627,29 @@ export default function AtendimentoPage() {
                   )}
                   
                   {msg.type === "audio" && (
-                    <div className="flex justify-start">
-                      <div className="bg-white rounded-lg p-3 shadow-sm">
-                        <audio controls className="max-w-[260px] h-10">
-                          <source src={msg.src} type="audio/mpeg" />
-                        </audio>
+                    <div className="flex justify-start items-end gap-2">
+                      <img 
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ZDIteG99pzp2ntjjfpTwOzeLq8X46H.png" 
+                        alt="Clara" 
+                        className="w-8 h-8 rounded-full object-cover shrink-0"
+                      />
+                      <div className="bg-white rounded-2xl rounded-bl-md p-2 shadow-sm max-w-[280px]">
+                        <div className="flex items-center gap-2">
+                          <audio 
+                            controls 
+                            className="w-full h-8"
+                            style={{
+                              filter: "sepia(20%) saturate(70%) grayscale(0) contrast(99%) invert(0)"
+                            }}
+                          >
+                            <source src={msg.src} type="audio/mpeg" />
+                          </audio>
+                        </div>
+                        <div className="flex justify-end mt-1">
+                          <span className="text-[10px] text-gray-400">
+                            {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
