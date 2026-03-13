@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+const CPF_API_KEY = "9d97e993b9bb5849c7750841e4866c75"
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const cpf = searchParams.get("cpf")
@@ -8,28 +10,40 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "CPF is required" }, { status: 400 })
   }
 
-  try {
-    console.log("[v0] Server: Calling CPF API for:", cpf)
+  // Remove any non-numeric characters from CPF
+  const cleanCpf = cpf.replace(/\D/g, "")
 
-    const apiUrl = `https://apela-api.tech/?user=a39d1d540e8677beb6b8bd8669c02df3&cpf=${cpf}`
-    console.log("[v0] Server: API URL:", apiUrl)
+  if (cleanCpf.length !== 11) {
+    return NextResponse.json({ error: "CPF deve conter 11 dígitos" }, { status: 400 })
+  }
+
+  try {
+    const apiUrl = `https://api.cpf-brasil.org/cpf/${cleanCpf}`
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "X-API-Key": CPF_API_KEY,
+        "Content-Type": "application/json",
       },
     })
 
-    console.log("[v0] Server: API Response status:", response.status)
+    const data = await response.json()
 
-    if (response.ok) {
-      const data = await response.json()
-      console.log("[v0] Server: API Response data:", data)
-      return NextResponse.json(data)
+    if (response.ok && data.success) {
+      // Transform response to match expected format
+      const transformedData = {
+        nome: data.data.NOME,
+        cpf: data.data.CPF,
+        nascimento: data.data.NASC,
+        sexo: data.data.SEXO,
+        nome_mae: data.data.NOME_MAE,
+      }
+      return NextResponse.json(transformedData)
     } else {
-      console.log("[v0] Server: API call failed with status:", response.status)
-      return NextResponse.json({ error: "API call failed" }, { status: response.status })
+      // Handle API errors
+      const errorMessage = data.message || data.error || "Erro ao consultar CPF"
+      return NextResponse.json({ error: errorMessage, code: data.code }, { status: response.status })
     }
   } catch (error) {
     console.error("[v0] Server: Error calling CPF API:", error)
