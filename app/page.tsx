@@ -54,6 +54,19 @@ export default function CorreiosPage() {
       minute3: Math.floor(Math.random() * 60),
     }
   })
+  const [trackingCode] = useState(() => {
+    // Generate static tracking code once when component initializes
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    const numbers = "0123456789"
+    let code = "BR"
+    for (let i = 0; i < 9; i++) {
+      code += numbers.charAt(Math.floor(Math.random() * numbers.length))
+    }
+    for (let i = 0; i < 2; i++) {
+      code += letters.charAt(Math.floor(Math.random() * letters.length))
+    }
+    return code
+  })
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const router = useRouter()
 
@@ -437,19 +450,8 @@ export default function CorreiosPage() {
                 <p>
                   <strong>Situação Atual:</strong> Aguardando Pagamento
                 </p>
-                <p>
-                  <strong>Seu Código Postal é:</strong> {(() => {
-                    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                    const numbers = "0123456789"
-                    let code = "BR"
-                    for (let i = 0; i < 9; i++) {
-                      code += numbers.charAt(Math.floor(Math.random() * numbers.length))
-                    }
-                    for (let i = 0; i < 2; i++) {
-                      code += letters.charAt(Math.floor(Math.random() * letters.length))
-                    }
-                    return code
-                  })()}
+<p>
+                  <strong>Seu Código Postal é:</strong> {trackingCode}
                 </p>
                 <p className="text-sm italic">
                   *ATENÇÃO: Este Código Postal está disponível apenas aqui na plataforma de fiscalização integrada e não
