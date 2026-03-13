@@ -493,9 +493,9 @@ export default function AtendimentoPage() {
           {/* Chat Header */}
           <div className="bg-[#004069] text-white p-4 flex items-center gap-3 shrink-0">
             <img 
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/OIP-kV7nWS73S9nCX1kBUgfexZ8ARCQGyO.webp" 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/correios-logo-removebg-preview-0OKkM83QwzIkchAhLkL1TBOceK8Fds.png" 
               alt="Correios" 
-              className="h-10 object-contain"
+              className="h-12 object-contain"
             />
             <div className="flex-1">
               <h2 className="font-bold text-lg">Atendimento Correios</h2>
