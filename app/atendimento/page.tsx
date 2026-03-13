@@ -58,6 +58,7 @@ export default function AtendimentoPage() {
   const [loadingCpf, setLoadingCpf] = useState(false)
   const [cpfError, setCpfError] = useState("")
   const [showCpfForm, setShowCpfForm] = useState(false)
+  const [flowStarted, setFlowStarted] = useState(false)
   const searchParams = useSearchParams()
   const cpfParam = searchParams.get("cpf")
   const router = useRouter()
@@ -197,7 +198,9 @@ export default function AtendimentoPage() {
 
   // Chat flow
   useEffect(() => {
-    if (!isMounted || !cpfData || showCpfForm) return
+    if (!isMounted || !cpfData || showCpfForm || flowStarted) return
+    
+    setFlowStarted(true)
 
     const runFlow = async () => {
       // Step 1: Clara entrou no chat
@@ -248,7 +251,7 @@ export default function AtendimentoPage() {
     }
 
     runFlow()
-  }, [isMounted, cpfData, showCpfForm])
+  }, [isMounted, cpfData, showCpfForm, flowStarted])
 
   const handleSimClick = async () => {
     setCurrentStep(0)
