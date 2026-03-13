@@ -492,9 +492,11 @@ export default function AtendimentoPage() {
         <div className="w-full max-w-[500px] md:max-w-[600px] h-[80vh] max-h-[800px] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Chat Header */}
           <div className="bg-[#004069] text-white p-4 flex items-center gap-3 shrink-0">
-            <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
-              <span className="text-[#004069] font-bold text-xl">C</span>
-            </div>
+            <img 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/OIP-kV7nWS73S9nCX1kBUgfexZ8ARCQGyO.webp" 
+              alt="Correios" 
+              className="h-10 object-contain"
+            />
             <div className="flex-1">
               <h2 className="font-bold text-lg">Atendimento Correios</h2>
               <div className="flex items-center gap-2">
@@ -577,9 +579,11 @@ export default function AtendimentoPage() {
                   {msg.type === "icon" && msg.iconType === "clara" && (
                     <div className="flex justify-center">
                       <div className="bg-[#004069]/10 text-[#004069] rounded-full px-4 py-2 text-sm flex items-center gap-2">
-                        <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                          <span className="text-[#004069] font-bold text-xs">C</span>
-                        </div>
+                        <img 
+                          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ZDIteG99pzp2ntjjfpTwOzeLq8X46H.png" 
+                          alt="Clara" 
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
                         {msg.content}
                       </div>
                     </div>
