@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 interface CustomerData {
   nome?: string
@@ -27,6 +28,7 @@ export default function PagamentoPage() {
   const [customerData, setCustomerData] = useState<CustomerData>({})
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -252,7 +254,7 @@ export default function PagamentoPage() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 text-sm md:text-lg"
             onClick={() => {
               if (termsAccepted) {
-                window.location.href = "https://pay.feira2025.lat/lDW0ZaJQVv0GN7E"
+                router.push("/pix")
               } else {
                 alert("Por favor, aceite os termos para continuar.")
               }
