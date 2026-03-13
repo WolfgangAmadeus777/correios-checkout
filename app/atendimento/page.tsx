@@ -736,18 +736,16 @@ export default function AtendimentoPage() {
                         alt="Clara" 
                         className="w-8 h-8 rounded-full object-cover shrink-0"
                       />
-                      <div className="bg-white rounded-2xl rounded-bl-md p-2 shadow-sm max-w-[280px]">
-                        <div className="flex items-center gap-2">
-                          <audio 
-                            controls 
-                            className="w-full h-8"
-                            style={{
-                              filter: "sepia(20%) saturate(70%) grayscale(0) contrast(99%) invert(0)"
-                            }}
-                          >
-                            <source src={msg.src} type="audio/mpeg" />
-                          </audio>
-                        </div>
+                      <div className="bg-white rounded-2xl rounded-bl-md p-3 shadow-sm min-w-[220px] max-w-[280px]">
+                        <audio 
+                          controls 
+                          className="w-full"
+                          style={{ height: "40px" }}
+                          preload="auto"
+                        >
+                          <source src={msg.src} type="audio/mpeg" />
+                          Seu navegador nao suporta audio.
+                        </audio>
                         <div className="flex justify-end mt-1">
                           <span className="text-[10px] text-gray-400">
                             {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
