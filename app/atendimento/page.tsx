@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 
 interface Message {
   id: number
-  type: "text" | "image" | "audio" | "button" | "typing" | "icon" | "invoice"
+  type: "text" | "image" | "audio" | "button" | "typing" | "icon" | "invoice" | "tracking"
   content?: string
   src?: string
   buttonText?: string
@@ -235,6 +235,15 @@ export default function AtendimentoPage() {
       // Wait 2s
       await new Promise(r => setTimeout(r, 2000))
       
+      // Tracking Component
+      showTypingIndicator()
+      await new Promise(r => setTimeout(r, 1500))
+      removeTyping()
+      addMessage({ type: "tracking" })
+      
+      // Wait 2s
+      await new Promise(r => setTimeout(r, 2000))
+      
       // Checkmark
       addMessage({ type: "icon", iconType: "check" })
       
@@ -357,6 +366,100 @@ export default function AtendimentoPage() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">Carregando...</div>
+      </div>
+    )
+  }
+
+  // Tracking Component
+  const TrackingComponent = () => {
+    const today = new Date()
+    const formatTrackingDate = (daysAgo: number, hour: number, minute: number) => {
+      const date = new Date(today)
+      date.setDate(date.getDate() - daysAgo)
+      return `${date.toLocaleDateString("pt-BR")} ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
+    }
+
+    const trackingSteps = [
+      {
+        icon: (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        ),
+        title: "Objeto aguardando pagamento",
+        location: "CURITIBA - PR",
+        date: formatTrackingDate(0, 22, 0),
+        highlight: true,
+        link: "Efetuar pagamento"
+      },
+      {
+        icon: (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+          </svg>
+        ),
+        title: "Encaminhado para fiscalização aduaneira",
+        location: "CURITIBA - PR",
+        date: formatTrackingDate(22, 6, 11),
+        highlight: false
+      },
+      {
+        icon: (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+          </svg>
+        ),
+        title: "Objeto recebido pelos Correios do Brasil",
+        location: "CURITIBA - PR",
+        date: formatTrackingDate(23, 15, 29),
+        highlight: false
+      },
+      {
+        icon: (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+          </svg>
+        ),
+        title: "Objeto postado",
+        location: "CHINA",
+        date: formatTrackingDate(30, 2, 54),
+        highlight: false
+      }
+    ]
+
+    return (
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-[350px] border border-gray-200">
+        <div className="bg-[#004069] text-white p-3">
+          <h3 className="font-bold text-sm">Objeto Retido</h3>
+        </div>
+        <div className="p-3">
+          {trackingSteps.map((step, index) => (
+            <div key={index} className="flex gap-3">
+              {/* Timeline */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step.highlight ? "bg-yellow-400 text-[#004069]" : "bg-yellow-400 text-[#004069]"}`}>
+                  {step.icon}
+                </div>
+                {index < trackingSteps.length - 1 && (
+                  <div className="w-0.5 h-full min-h-[40px] bg-yellow-400"></div>
+                )}
+              </div>
+              {/* Content */}
+              <div className="pb-4 flex-1">
+                <p className={`font-semibold text-sm ${step.highlight ? "text-[#004069]" : "text-gray-800"}`}>
+                  {step.title}
+                </p>
+                <p className="text-xs text-gray-600">{step.location}</p>
+                <p className="text-xs text-gray-500">{step.date}</p>
+                {step.link && (
+                  <p className="text-xs mt-1">
+                    Realize o pagamento: <span className="text-blue-600 underline cursor-pointer">{step.link}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -493,9 +596,9 @@ export default function AtendimentoPage() {
           {/* Chat Header */}
           <div className="bg-[#004069] text-white p-4 flex items-center gap-3 shrink-0">
             <img 
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/correios-logo-removebg-preview-0OKkM83QwzIkchAhLkL1TBOceK8Fds.png" 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/correios-main-logo-symbol-two-arrows-blue-and-yellow-modern-3d-design-1-removebg-preview-EWNeNljpCBjApJcztefOrsyS1O6ysc.png" 
               alt="Correios" 
-              className="h-12 object-contain"
+              className="h-10 object-contain"
             />
             <div className="flex-1">
               <h2 className="font-bold text-lg">Atendimento Correios</h2>
@@ -657,6 +760,12 @@ export default function AtendimentoPage() {
                   {msg.type === "invoice" && msg.invoiceData && (
                     <div className="flex justify-start">
                       <InvoiceComponent data={msg.invoiceData} />
+                    </div>
+                  )}
+
+                  {msg.type === "tracking" && (
+                    <div className="flex justify-start">
+                      <TrackingComponent />
                     </div>
                   )}
                 </div>
