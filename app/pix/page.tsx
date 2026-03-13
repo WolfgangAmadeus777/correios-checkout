@@ -305,7 +305,7 @@ export default function PixPage() {
             <div>
               {/* Amount Header */}
               <div className="bg-[#e9ecef] p-4 border-b border-gray-200">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Beneficiário</p>
                     <p className="font-bold text-[#004069]">Correios - Receita Federal</p>
