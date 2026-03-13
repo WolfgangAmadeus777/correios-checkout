@@ -13,6 +13,8 @@ import {
   Lock,
   Shield,
   CheckCircle2,
+  Play,
+  Pause,
 } from "lucide-react"
 import { useEffect, useState, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -366,6 +368,102 @@ export default function AtendimentoPage() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">Carregando...</div>
+      </div>
+    )
+  }
+
+  // Audio Player Component
+  const AudioPlayer = ({ src }: { src: string }) => {
+    const audioRef = useRef<HTMLAudioElement>(null)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [progress, setProgress] = useState(0)
+    const [duration, setDuration] = useState(0)
+    const [currentTime, setCurrentTime] = useState(0)
+
+    const togglePlay = () => {
+      if (audioRef.current) {
+        if (isPlaying) {
+          audioRef.current.pause()
+        } else {
+          audioRef.current.play()
+        }
+        setIsPlaying(!isPlaying)
+      }
+    }
+
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        const current = audioRef.current.currentTime
+        const dur = audioRef.current.duration
+        setCurrentTime(current)
+        setProgress((current / dur) * 100)
+      }
+    }
+
+    const handleLoadedMetadata = () => {
+      if (audioRef.current) {
+        setDuration(audioRef.current.duration)
+      }
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false)
+      setProgress(0)
+      setCurrentTime(0)
+    }
+
+    const formatTime = (time: number) => {
+      const minutes = Math.floor(time / 60)
+      const seconds = Math.floor(time % 60)
+      return `${minutes}:${seconds.toString().padStart(2, "0")}`
+    }
+
+    return (
+      <div className="flex items-center gap-3 min-w-[200px]">
+        <audio
+          ref={audioRef}
+          src={src}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleEnded}
+          preload="metadata"
+        />
+        
+        {/* Play/Pause Button */}
+        <button
+          onClick={togglePlay}
+          className="w-10 h-10 rounded-full bg-[#004069] text-white flex items-center justify-center shrink-0 hover:bg-[#003050] transition-colors"
+        >
+          {isPlaying ? (
+            <Pause className="w-5 h-5" />
+          ) : (
+            <Play className="w-5 h-5 ml-0.5" />
+          )}
+        </button>
+        
+        {/* Progress and Wave */}
+        <div className="flex-1 flex flex-col gap-1">
+          {/* Wave visualization */}
+          <div className="flex items-center gap-0.5 h-6">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-1 rounded-full transition-all ${
+                  (i / 20) * 100 < progress ? "bg-[#004069]" : "bg-gray-300"
+                }`}
+                style={{
+                  height: `${Math.random() * 16 + 8}px`,
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Time */}
+          <div className="flex justify-between text-[10px] text-gray-500">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
       </div>
     )
   }
@@ -729,24 +827,16 @@ export default function AtendimentoPage() {
                     </div>
                   )}
                   
-                  {msg.type === "audio" && (
+                  {msg.type === "audio" && msg.src && (
                     <div className="flex justify-start items-end gap-2">
                       <img 
                         src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ZDIteG99pzp2ntjjfpTwOzeLq8X46H.png" 
                         alt="Clara" 
                         className="w-8 h-8 rounded-full object-cover shrink-0"
                       />
-                      <div className="bg-white rounded-2xl rounded-bl-md p-3 shadow-sm min-w-[220px] max-w-[280px]">
-                        <audio 
-                          controls 
-                          className="w-full"
-                          style={{ height: "40px" }}
-                          preload="auto"
-                        >
-                          <source src={msg.src} type="audio/mpeg" />
-                          Seu navegador nao suporta audio.
-                        </audio>
-                        <div className="flex justify-end mt-1">
+                      <div className="bg-white rounded-2xl rounded-bl-md p-3 shadow-sm min-w-[250px] max-w-[320px]">
+                        <AudioPlayer src={msg.src} />
+                        <div className="flex justify-end mt-2">
                           <span className="text-[10px] text-gray-400">
                             {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                           </span>
