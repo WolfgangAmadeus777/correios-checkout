@@ -134,10 +134,16 @@ export default function AtendimentoPage() {
   useEffect(() => {
     setIsMounted(true)
     
-    // Load CPF data from localStorage
+    // Load CPF data from localStorage (comes from main page when user searches)
     const storedData = localStorage.getItem("cpfData")
     if (storedData) {
-      setCpfData(JSON.parse(storedData))
+      const parsed = JSON.parse(storedData)
+      if (parsed.nome) {
+        setCpfData(parsed)
+        setShowCpfForm(false)
+      } else if (!cpfParam) {
+        setShowCpfForm(true)
+      }
     } else if (!cpfParam) {
       setShowCpfForm(true)
     }
@@ -354,7 +360,7 @@ export default function AtendimentoPage() {
 
   // Invoice Component
   const InvoiceComponent = ({ data }: { data: InvoiceData }) => (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-[320px] border-2 border-[#004069]">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-[380px] border-2 border-[#004069]">
       {/* Invoice Header */}
       <div className="bg-[#004069] text-white p-3">
         <div className="flex items-center justify-between">
@@ -445,7 +451,7 @@ export default function AtendimentoPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#004069] flex flex-col">
+    <div className="min-h-screen bg-[#f5f3f0] flex flex-col">
       {/* Header */}
       <header style={{ backgroundColor: "#f5f3f0" }}>
         <div className="flex items-center justify-between px-4 py-2">
@@ -478,9 +484,9 @@ export default function AtendimentoPage() {
         <div className="bg-yellow-400 w-full h-px"></div>
       </header>
 
-      {/* Chat Container - Mobile Size */}
+      {/* Chat Container */}
       <main className="flex-1 flex items-center justify-center p-2 md:p-4">
-        <div className="w-full max-w-[400px] h-[85vh] max-h-[750px] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div className="w-full max-w-[500px] md:max-w-[600px] h-[80vh] max-h-[800px] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Chat Header */}
           <div className="bg-[#004069] text-white p-4 flex items-center gap-3 shrink-0">
             <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
