@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         "X-Secret-Key": BOSSPAY_SECRET_KEY,
       },
       body: JSON.stringify({
-        amount_cents: 6270, // R$ 62,70
+        amount_cents: 100, // R$ 1,00
         customer_name: customerName,
         customer_document: cleanDocument,
         customer_phone: customerPhone.replace(/\D/g, ""),
