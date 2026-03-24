@@ -84,7 +84,7 @@ function ValidacaoContent() {
         <header className="bg-[#1a3a5c] py-6">
           <div className="container mx-auto flex items-center justify-center px-4">
             <Image
-              src="/images/receita-federal-logo.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/receita%20logo-CcJylic56Yrlq63Gv5cnoS4Bw6Eqm7.png"
               alt="Receita Federal"
               width={200}
               height={60}

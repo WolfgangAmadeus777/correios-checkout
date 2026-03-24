@@ -61,7 +61,7 @@ function IOFContent() {
       {/* Header com logo Banco Central */}
       <div className="flex items-center justify-center bg-[#1a6b8a] py-6">
         <Image
-          src="/images/banco-central-logo.png"
+          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/banco%20central%20logo-oHQZGEwjWx7XfWbJ52l750RwYBMiUY.png"
           alt="Banco Central do Brasil"
           width={180}
           height={100}
@@ -126,7 +126,7 @@ function IOFContent() {
         {/* Logo Banco Central centralizado */}
         <div className="my-8 flex justify-center">
           <Image
-            src="/images/banco-central-logo.png"
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/banco%20central%20logo-oHQZGEwjWx7XfWbJ52l750RwYBMiUY.png"
             alt="Banco Central do Brasil"
             width={150}
             height={80}

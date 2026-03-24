@@ -118,7 +118,7 @@ function PendenciaCPFContent() {
         <header className="bg-[#152d47] py-4">
           <div className="flex justify-center px-4">
             <Image
-              src="/images/receita-federal-logo.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/receita%20logo-CcJylic56Yrlq63Gv5cnoS4Bw6Eqm7.png"
               alt="Receita Federal"
               width={200}
               height={60}

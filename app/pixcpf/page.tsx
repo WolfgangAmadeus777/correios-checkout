@@ -179,7 +179,7 @@ function PixCPFContent() {
       {/* Header */}
       <header className="bg-[#152d47] py-4">
         <div className="flex justify-center px-4">
-          <img src="/images/receita-federal-logo.png" alt="Receita Federal" className="h-12 w-auto" />
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/receita%20logo-CcJylic56Yrlq63Gv5cnoS4Bw6Eqm7.png" alt="Receita Federal" className="h-12 w-auto" />
         </div>
       </header>
 
