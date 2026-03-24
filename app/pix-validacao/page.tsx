@@ -122,10 +122,10 @@ function PixValidacaoContent() {
         if (data.success && data.status) {
           setPaymentStatus(data.status)
           if (data.status === "APPROVED") {
-            // Final do funil - redireciona para página de sucesso
+            // Final do funil - redireciona para página de obrigado
             setTimeout(() => {
-              router.push(`/`)
-            }, 3000)
+              router.push(`/obrigado?placa=${placa}`)
+            }, 2000)
           }
         }
       } catch (err) {

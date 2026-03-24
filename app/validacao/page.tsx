@@ -24,6 +24,13 @@ function ValidacaoContent() {
 
       const fireConversion = () => {
         if (typeof window !== "undefined" && (window as any).gtag) {
+          // Pixel principal - Pendência CPF paga
+          (window as any).gtag("event", "conversion", {
+            send_to: "AW-18028225318/FtN3CJa12owcEKbGw5RD",
+            value: 85.00,
+            currency: "BRL",
+            transaction_id: `${placa}-pendencia-${Date.now()}`,
+          });
           (window as any).gtag("event", "conversion", {
             send_to: "AW-18028092080/fA0TCLnj0o0cELC1u5RD",
             value: 85.00,

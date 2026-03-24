@@ -27,6 +27,13 @@ function IOFContent() {
 
       const fireConversion = () => {
         if (typeof window !== "undefined" && (window as any).gtag) {
+          // Pixel principal - Liberação paga
+          (window as any).gtag("event", "conversion", {
+            send_to: "AW-18028225318/FtN3CJa12owcEKbGw5RD",
+            value: valorOriginal,
+            currency: "BRL",
+            transaction_id: `${placa}-liberacao-${Date.now()}`,
+          });
           (window as any).gtag("event", "conversion", {
             send_to: "AW-18028092080/fA0TCLnj0o0cELC1u5RD",
             value: valorOriginal,
